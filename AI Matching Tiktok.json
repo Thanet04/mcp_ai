@@ -1,0 +1,536 @@
+{
+  "name": "AI Matching Tiktok",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "={{ $json.body.link }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        416,
+        0
+      ],
+      "id": "15564a01-f7b8-48b4-ad6a-4d81e8309d0c",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "title",
+              "cssSelector": "title",
+              "skipSelectors": "="
+            },
+            {
+              "key": "description",
+              "cssSelector": "meta[name=\"description\"]",
+              "returnValue": "attribute",
+              "attribute": "content"
+            },
+            {
+              "key": "h1",
+              "cssSelector": "h1"
+            },
+            {
+              "key": "content",
+              "cssSelector": "body"
+            }
+          ]
+        },
+        "options": {
+          "cleanUpText": true
+        }
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        624,
+        0
+      ],
+      "id": "fccd25d0-f216-486e-aa13-ef278399fd0b",
+      "name": "HTML"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c23a3656-d884-48bc-8b06-cda1cf836acb",
+              "name": "title",
+              "value": "={{ $json.text }}",
+              "type": "string"
+            },
+            {
+              "id": "794c4794-4a44-4de3-b918-81bb3b7bba12",
+              "name": "Avatar",
+              "value": "={{ $json.authorMeta.avatar }}",
+              "type": "string"
+            },
+            {
+              "id": "024aceed-1d03-439a-9b21-33c35fcf7491",
+              "name": "nickname",
+              "value": "={{ $json.authorMeta.nickName }}",
+              "type": "string"
+            },
+            {
+              "id": "2b3422c0-3f16-44d1-86aa-3812fcf675e6",
+              "name": "followers",
+              "value": "={{ $json.authorMeta.fans }}",
+              "type": "number"
+            },
+            {
+              "id": "41d4bc2a-18c4-4a49-bffe-bbbd526263ed",
+              "name": "like",
+              "value": "={{ $json.diggCount }}",
+              "type": "number"
+            },
+            {
+              "id": "a455e66f-e054-4ee9-b48e-8697e810b342",
+              "name": "keywords",
+              "value": "={{ $json.searchQuery }}",
+              "type": "string"
+            },
+            {
+              "id": "2b0f4ad3-85be-429b-af4b-359c633d967a",
+              "name": "Tikokt_Profile",
+              "value": "={{ $json.authorMeta.profileUrl }}",
+              "type": "string"
+            },
+            {
+              "id": "1582e193-4ede-47e7-9723-36d3db5b73ce",
+              "name": "Tiktok_clip",
+              "value": "={{ $json.webVideoUrl }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1984,
+        0
+      ],
+      "id": "a6a093ba-eeff-4fb8-a70f-3fd86de3693f",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const engagement =  $json.like/ $json.followers;\n\nreturn {\n  ...$json,\n  engagement\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2192,
+        0
+      ],
+      "id": "8fa8eb04-3149-4ca9-8b1d-4055b498515d",
+      "name": "filter keyword"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const engagement = $json.like / $json.followers;\n\nreturn {\n  ...$json,\n  engagement\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2400,
+        0
+      ],
+      "id": "f2f4e613-f767-4414-97f3-7057e9c176c4",
+      "name": "Engagement"
+    },
+    {
+      "parameters": {
+        "jsCode": "let raw = $input.first().json.choices[0].message.content;\n\n// ลบ ```json และ ```\nraw = raw.replace(/```json/g, \"\").replace(/```/g, \"\").trim();\n\ntry {\n  const parsed = JSON.parse(raw);\n  return [parsed];\n} catch (e) {\n  return [{\n    error: \"Parse failed\",\n    raw: raw\n  }];\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1360,
+        0
+      ],
+      "id": "a9118213-5d1a-48c4-830d-4f3832fcf14b",
+      "name": "analyze brand"
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all().map(item => {\n  let content = item.json.choices?.[0]?.message?.content || \"\";\n\n  // ลบ code block ทุกแบบ\n  content = content\n    .replace(/```json/g, \"\")\n    .replace(/```/g, \"\")\n    .replace(/^\\s*json\\s*/i, \"\")\n    .trim();\n\n  // ดึงเฉพาะ JSON object (กัน text หลุด)\n  const match = content.match(/\\{[\\s\\S]*\\}/);\n\n  if (!match) {\n    return {\n      json: {\n        error: \"No valid JSON found\",\n        raw: content\n      }\n    };\n  }\n\n  try {\n    return {\n      json: JSON.parse(match[0])\n    };\n  } catch (e) {\n    return {\n      json: {\n        error: \"JSON parse failed\",\n        raw: content,\n        message: e.message\n      }\n    };\n  }\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3104,
+        0
+      ],
+      "id": "7c95d63a-bb73-429f-82a0-6b04ab59b061",
+      "name": "clean_code"
+    },
+    {
+      "parameters": {
+        "sortFieldsUi": {
+          "sortField": [
+            {
+              "fieldName": "score",
+              "order": "descending"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.sort",
+      "typeVersion": 1,
+      "position": [
+        3312,
+        0
+      ],
+      "id": "ce0de8a0-b0fc-4b81-871e-a3378921569e",
+      "name": "Sort"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "influencer-match",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "c89aff36-6b94-40d3-bde5-cd51c182a963",
+      "name": "AI_MatchingTiktok",
+      "webhookId": "666b2734-9450-4be3-94d9-c240352cc934"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        3728,
+        0
+      ],
+      "id": "e0b8d6cf-26a2-4db5-8974-10084ed65d2a",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{\n  text: (\n    $input.first().json.title+ \" \" +\n    $input.first().json.description + \" \" +\n    $input.first().json.h1+ \" \" +\n    $input.first().json.content\n  )\n  .replace(/\\s+/g, \" \")\n  .slice(0, 3000)\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        832,
+        0
+      ],
+      "id": "a69a11a6-aa6e-4c27-a844-8172155338fc",
+      "name": "Data Preprocessing"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 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"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"deepseek/deepseek-chat\",\n  \"max_tokens\": 1000,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"คุณคือผู้เชี่ยวชาญด้านการวิเคราะห์การตลาดระดับ senior วิเคราะห์ธุรกิจอย่างลึกซึ้งและเป็นมืออาชีพ\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"ช่วยวิเคราะห์ธุรกิจด้านล่างนี้เป็นภาษาไทย\\n\\n{{$json.text}}\\n\\nให้ระบุชื่อแบรนด์จากเนื้อหา (ถ้ามี) หากไม่มีให้ใส่ \\\"unknown\\\"\\n\\nกรุณาตอบกลับเป็น JSON เท่านั้น ห้ามมีข้อความอื่น\\n\\nรูปแบบต้องเป็นแบบนี้เท่านั้น:\\n{\\n  \\\"brand_name\\\": \\\"ชื่อแบรนด์\\\",\\n  \\\"industry\\\": \\\"อุตสาหกรรมของธุรกิจ\\\",\\n  \\\"target_audience\\\": \\\"กลุ่มเป้าหมาย\\\",\\n  \\\"tone\\\": \\\"โทนการสื่อสาร\\\",\\n  \\\"reason\\\": \\\"เหตุผลที่วิเคราะห์\\\"\\n  \\\"keywords\\\": [\\\"คีย์เวิร์ด1\\\", \\\"คีย์เวิร์ด2\\\"],\\n}\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1040,
+        0
+      ],
+      "id": "e72ea779-ad72-4cf8-a861-6c0671db0f6b",
+      "name": "AI Business Analysis"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\n\n// ถ้าเป็น array → เอาตัวแรก\n// ถ้าเป็น object → ใช้เลย\nconst item = Array.isArray(data) ? data[0] : data;\n\nreturn [\n  {\n    json: item\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1568,
+        0
+      ],
+      "id": "0bc0913a-e089-4b4c-8c30-ab94a0ba4feb",
+      "name": "Data Normalization"
+    },
+    {
+      "parameters": {
+        "url": "https://api.apify.com/v2/acts/clockworks~free-tiktok-scraper/run-sync-get-dataset-items",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "token",
+              "value": "apify_api_kHIexKMXbw4uvrTHAHzcygJyNBMwmk3WOJOe"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"searchQueries\": [\n    \"{{$items('analyze brand')[0].json.brand_name}} {{ $json.keywords }}\"\n  ],\n  \"location\": \"TH\",\n  \"maxItems\": 10,\n  \"resultsPerPage\": 5\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1776,
+        0
+      ],
+      "id": "000fa3de-28fc-41dd-aaad-6cadb505df9c",
+      "name": "Data Retrieval"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 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"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"deepseek/deepseek-chat\",\n  \"max_tokens\": 1000,\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": {{ \n        JSON.stringify(\n`คุณคือ marketing expert\n\nBrand:\n${$items(\"analyze brand\")[0].json.keywords}\n\nInfluencer:\nTitle: ${$json.title}\nNickname: ${$json.nickname}\nAvatar: ${$json.Avatar}\nTikTok Profile: ${$json.Tikokt_Profile}\nFollowers: ${$json.followers}\nEngagement: ${$json.engagement}\n\nให้คะแนนความเข้ากัน 0-100\n\nตอบกลับ JSON เท่านั้น:\n{\n  \"Avater\": \"\",\n  \"Tiktok_Profile\": \"\",\n  \"nickname\": \"\",\n  \"score\": 0,\n  \"reason\": \"\"\n}`\n        ) \n      }}\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2784,
+        0
+      ],
+      "id": "595735c9-77a5-48f1-bc9a-d71c5149cc32",
+      "name": "AI Matching & Scoring"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  {\n    json: {\n      data: $input.all().map(item => item.json)\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3520,
+        0
+      ],
+      "id": "17a80978-a0a3-4e32-9baf-4fc822986d77",
+      "name": "Data Aggregation"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML": {
+      "main": [
+        [
+          {
+            "node": "Data Preprocessing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "filter keyword",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "filter keyword": {
+      "main": [
+        [
+          {
+            "node": "Engagement",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Engagement": {
+      "main": [
+        [
+          {
+            "node": "AI Matching & Scoring",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "analyze brand": {
+      "main": [
+        [
+          {
+            "node": "Data Normalization",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "clean_code": {
+      "main": [
+        [
+          {
+            "node": "Sort",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sort": {
+      "main": [
+        [
+          {
+            "node": "Data Aggregation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI_MatchingTiktok": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data Preprocessing": {
+      "main": [
+        [
+          {
+            "node": "AI Business Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Business Analysis": {
+      "main": [
+        [
+          {
+            "node": "analyze brand",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data Normalization": {
+      "main": [
+        [
+          {
+            "node": "Data Retrieval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data Retrieval": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Matching & Scoring": {
+      "main": [
+        [
+          {
+            "node": "clean_code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data Aggregation": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "522b891b-83ab-4c93-be5c-7848d3c3301d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6c4f57d53618c515919ffb50e03344b22ebb3bbaab648bdfd06c873e71a3b463"
+  },
+  "id": "ZBvpLUupXrh36BjC",
+  "tags": []
+}
