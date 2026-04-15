@@ -1,73 +1,27 @@
-# React + TypeScript + Vite
+## Deployment
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+โปรเจกต์นี้เป็นเครื่องมือที่ใช้ AI เพื่อช่วยจับคู่แบรนด์กับ Influencer บน TikTok ที่เหมาะสมในประเทศไทย โดยใช้การวิเคราะห์ข้อมูลและระบบอัตโนมัติผ่าน n8n
 
-Currently, two official plugins are available:
+ฟีเจอร์หลัก (Features)
+1. วิเคราะห์แบรนด์จาก Website หรือ Facebook
+2. ใช้ AI (DeepSeek) ในการสกัดคีย์เวิร์ดของแบรนด์
+3. ค้นหา TikTok Influencer ผ่าน Apify
+4. คำนวณ Engagement Rate ของ Influencer
+6. จัดอันดับ Influencer ด้วย AI 
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+เทคโนโลยีที่ใช้ (Tech Stack)
+1. n8n – ระบบ Automation (Backend)
+2. DeepSeek API – ใช้สำหรับวิเคราะห์ข้อมูลด้วย AI
+3. Apify – ใช้ดึงข้อมูล TikTok Influencer
+4. front-end framework react/tyscript
 
-## React Compiler
+วิธีการใช้งาน
+1. เปิด n8n ที่ run บน Docker
+2. Import file workflow.json
+3. Add API keys (DeepSeek, Apify ,other)
+4. run Workflow ใช้งานผ่าน Webhook Endpoint เช่น: http://localhost:5678/webhook/influencer-match
+5. run front-end 
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Note:
+ปัจจุบัน run แบบ Local เพื่อใช้ในการแสดง Demo
+หากต้องการใช้งานจริง(Production) สามาารถ Deploy บน n8n Cloud หรือ Docker ได้
