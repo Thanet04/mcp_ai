@@ -242,19 +242,8 @@
       "parameters": {
         "method": "POST",
         "url": "https://openrouter.ai/api/v1/chat/completions",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "Authorization",
-              "value": "Bearer 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"
-            },
-            {
-              "name": "Content-Type",
-              "value": "application/json"
-            }
-          ]
-        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={\n  \"model\": \"deepseek/deepseek-chat\",\n  \"max_tokens\": 1000,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"คุณคือผู้เชี่ยวชาญด้านการวิเคราะห์การตลาดระดับ senior วิเคราะห์ธุรกิจอย่างลึกซึ้งและเป็นมืออาชีพ\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"ช่วยวิเคราะห์ธุรกิจด้านล่างนี้เป็นภาษาไทย\\n\\n{{$json.text}}\\n\\nให้ระบุชื่อแบรนด์จากเนื้อหา (ถ้ามี) หากไม่มีให้ใส่ \\\"unknown\\\"\\n\\nกรุณาตอบกลับเป็น JSON เท่านั้น ห้ามมีข้อความอื่น\\n\\nรูปแบบต้องเป็นแบบนี้เท่านั้น:\\n{\\n  \\\"brand_name\\\": \\\"ชื่อแบรนด์\\\",\\n  \\\"industry\\\": \\\"อุตสาหกรรมของธุรกิจ\\\",\\n  \\\"target_audience\\\": \\\"กลุ่มเป้าหมาย\\\",\\n  \\\"tone\\\": \\\"โทนการสื่อสาร\\\",\\n  \\\"reason\\\": \\\"เหตุผลที่วิเคราะห์\\\"\\n  \\\"keywords\\\": [\\\"คีย์เวิร์ด1\\\", \\\"คีย์เวิร์ด2\\\"],\\n}\"\n    }\n  ]\n}",
@@ -267,7 +256,13 @@
         0
       ],
       "id": "e72ea779-ad72-4cf8-a861-6c0671db0f6b",
-      "name": "AI Business Analysis"
+      "name": "AI Business Analysis",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "2R5ynSNGiP3h1tdj",
+          "name": "open router"
+        }
+      }
     },
     {
       "parameters": {
@@ -285,15 +280,8 @@
     {
       "parameters": {
         "url": "https://api.apify.com/v2/acts/clockworks~free-tiktok-scraper/run-sync-get-dataset-items",
-        "sendQuery": true,
-        "queryParameters": {
-          "parameters": [
-            {
-              "name": "token",
-              "value": "apify_api_kHIexKMXbw4uvrTHAHzcygJyNBMwmk3WOJOe"
-            }
-          ]
-        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={\n  \"searchQueries\": [\n    \"{{$items('analyze brand')[0].json.brand_name}} {{ $json.keywords }}\"\n  ],\n  \"location\": \"TH\",\n  \"maxItems\": 10,\n  \"resultsPerPage\": 5\n}",
@@ -306,25 +294,20 @@
         0
       ],
       "id": "000fa3de-28fc-41dd-aaad-6cadb505df9c",
-      "name": "Data Retrieval"
+      "name": "Data Retrieval",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "4JEGpr492TE2lIwj",
+          "name": "apify"
+        }
+      }
     },
     {
       "parameters": {
         "method": "POST",
         "url": "https://openrouter.ai/api/v1/chat/completions",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "Authorization",
-              "value": "Bearer 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"
-            },
-            {
-              "name": "Content-Type",
-              "value": "application/json"
-            }
-          ]
-        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={\n  \"model\": \"deepseek/deepseek-chat\",\n  \"max_tokens\": 1000,\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": {{ \n        JSON.stringify(\n`คุณคือ marketing expert\n\nBrand:\n${$items(\"analyze brand\")[0].json.keywords}\n\nInfluencer:\nTitle: ${$json.title}\nNickname: ${$json.nickname}\nAvatar: ${$json.Avatar}\nTikTok Profile: ${$json.Tikokt_Profile}\nFollowers: ${$json.followers}\nEngagement: ${$json.engagement}\n\nให้คะแนนความเข้ากัน 0-100\n\nตอบกลับ JSON เท่านั้น:\n{\n  \"Avater\": \"\",\n  \"Tiktok_Profile\": \"\",\n  \"nickname\": \"\",\n  \"score\": 0,\n  \"reason\": \"\"\n}`\n        ) \n      }}\n    }\n  ]\n}",
@@ -337,7 +320,13 @@
         0
       ],
       "id": "595735c9-77a5-48f1-bc9a-d71c5149cc32",
-      "name": "AI Matching & Scoring"
+      "name": "AI Matching & Scoring",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "2R5ynSNGiP3h1tdj",
+          "name": "open router"
+        }
+      }
     },
     {
       "parameters": {
@@ -526,7 +515,7 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "522b891b-83ab-4c93-be5c-7848d3c3301d",
+  "versionId": "47a28d66-36d0-47d9-9049-e94abc5481b4",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "6c4f57d53618c515919ffb50e03344b22ebb3bbaab648bdfd06c873e71a3b463"
