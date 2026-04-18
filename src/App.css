@@ -98,38 +98,6 @@ body {
   100% { transform: translate(-20px, 20px) scale(0.9); }
 }
 
-/* Main Container */
-.main-content {
-  position: relative;
-  z-index: 10;
-  width: 100%;
-  max-width: 1000px;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.main-content.has-results {
-  flex-direction: row;
-  align-items: flex-start;
-}
-
-.form-container {
-  flex: 1;
-  width: 100%;
-  max-width: 540px;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  animation: slideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  margin: 0 auto;
-}
-
-.main-content.has-results .form-container {
-  max-width: 400px;
-  margin: 0;
-}
 
 @keyframes slideUpFade {
   from { opacity: 0; transform: translateY(40px); }
@@ -165,9 +133,6 @@ body {
   letter-spacing: -0.02em;
 }
 
-.main-content.has-results .form-header h1 {
-   font-size: 1.8rem;
-}
 
 .form-header p {
   color: var(--text-muted);
@@ -189,10 +154,6 @@ body {
   flex-direction: column;
   gap: 1.5rem;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.main-content.has-results .glass-form {
-  padding: 2rem;
 }
 
 .glass-form:hover {
@@ -318,14 +279,6 @@ input:disabled {
 }
 
 /* Results Section */
-.results-container {
-  flex: 1.5;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  min-width: 400px;
-}
-
 .slide-in {
   animation: slideInRight 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
@@ -397,12 +350,6 @@ input:disabled {
   transition: transform 0.2s ease, background 0.2s ease;
 }
 
-.ranking-card-main {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  width: 100%;
-}
 
 .ranking-card:hover {
   transform: translateX(5px);
@@ -507,12 +454,6 @@ input:disabled {
   color: white;
 }
 
-.influencer-stats {
-  display: flex;
-  gap: 1.5rem;
-  text-align: right;
-  flex-shrink: 0;
-}
 
 .stat-column {
   display: flex;
@@ -551,37 +492,4 @@ input:disabled {
   padding: 3rem;
   text-align: center;
   color: var(--text-muted);
-}
-
-
-/* Responsive adjustments */
-@media (max-width: 900px) {
-  .main-content.has-results {
-    flex-direction: column;
-  }
-  
-  .main-content.has-results .form-container,
-  .results-container {
-    max-width: 100%;
-    min-width: 100%;
-  }
-}
-
-@media (max-width: 640px) {
-  .glass-form {
-    padding: 1.5rem;
-  }
-  
-  .ranking-card-main {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  
-  .influencer-stats {
-    width: 100%;
-    flex-direction: row;
-    justify-content: flex-start;
-    gap: 1.5rem;
-    text-align: left;
-  }
 }

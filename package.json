@@ -11,15 +11,20 @@
   },
   "dependencies": {
     "2": "^3.0.0",
+    "@tailwindcss/postcss": "^4.2.2",
     "axios": "^1.15.0",
     "lucide-react": "^1.8.0",
+    "postcss": "^8.5.10",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "sweetalert": "^2.1.2",
-    "sweetalert2": "^11.26.24"
+    "sweetalert2": "^11.26.24",
+    "tailwind": "^4.0.0",
+    "tailwindcss": "^4.2.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
+    "@tailwindcss/vite": "^4.2.2",
     "@types/node": "^24.12.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",

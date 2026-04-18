@@ -61,9 +61,8 @@ function App() {
         <div className="shape shape-2 tiktok-pink"></div>
         <div className="shape shape-3"></div>
       </div>
-
-      <main className={`main-content ${rankings ? 'has-results' : ''}`}>
-        <div className="form-container">
+      <main className={`relative z-10 w-full max-w-[1000px] flex flex-col gap-8 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${rankings ? 'lg:flex-row lg:items-start' : 'items-center'} mx-auto`}>
+        <div className={`w-full flex-1 flex flex-col gap-8 mx-auto animate-[slideUpFade_0.8s_ease-out_forwards] ${rankings ? 'max-w-full lg:max-w-[400px] lg:mx-0' : 'max-w-[540px]'}`}>
           <div className="form-header">
             <div className="logo-container">
               <Target size={40} className="logo-icon" />
@@ -72,7 +71,7 @@ function App() {
             <p>ค้นหาครีเอเตอร์ที่ใช่ เหมาะกับสไตล์แบรนด์ของคุณที่สุด</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="glass-form message-form">
+          <form onSubmit={handleSubmit} className="glass-form message-form p-6 sm:p-8 lg:p-10">
             <div className="input-group">
               <label htmlFor="link">Link Website หรือ Facebook</label>
               <div className="input-wrapper">
@@ -103,7 +102,7 @@ function App() {
 
         {/* Results Section */}
         {rankings && (
-          <div className="results-container slide-in">
+          <div className="flex-[1.5] flex flex-col gap-6 w-full lg:min-w-[400px] slide-in">
             <div className="results-header">
               <h2>ผลการจับคู่ Influencer</h2>
               <button onClick={handleReset} className="reset-btn">ค้นหาใหม่</button>
@@ -111,10 +110,10 @@ function App() {
 
             <div className="ranking-list">
               {rankings.map((influencer, i) => (
-                <div key={influencer.id || i} className="ranking-card glass-panel scale-in" style={{ animationDelay: `${influencer.rank! * 0.1}s` }}>
-                  <div className="ranking-card-main">
+                <div key={influencer.id || i} className="ranking-card glass-panel scale-in w-full min-w-0 shrink-0" style={{ animationDelay: `${influencer.rank! * 0.1}s` }}>
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 w-full min-w-0 shrink-0">
                     <div className="rank-badge">#{influencer.rank}</div>
-                    <div className="influencer-info">
+                    <div className="influencer-info min-w-0 flex-1">
                       <div className="influencer-avatar">
                         {influencer.avatarUrl ? (
                           <img src={influencer.avatarUrl} alt={influencer.name} />
@@ -122,19 +121,19 @@ function App() {
                           <User size={24} className="default-avatar" />
                         )}
                       </div>
-                      <div className="influencer-details">
-                        <h3>{influencer.name}</h3>
+                      <div className="influencer-details min-w-0">
+                        <h3 className="truncate">{influencer.name}</h3>
                         <div className="tags-container">
-                          {influencer.category && <span className="category-tag">{influencer.category}</span>}
+                          {influencer.category && <span className="category-tag truncate max-w-full">{influencer.category}</span>}
                           {influencer.profileUrl && (
-                            <a href={influencer.profileUrl} target="_blank" rel="noreferrer" className="profile-link-tag">
+                            <a href={influencer.profileUrl} target="_blank" rel="noreferrer" className="profile-link-tag shrink-0">
                               ดูโปรไฟล์ TikTok <ExternalLink size={12} />
                             </a>
                           )}
                         </div>
                       </div>
                     </div>
-                    <div className="influencer-stats">
+                    <div className="flex flex-row sm:flex-col justify-start sm:justify-end gap-6 w-full sm:w-auto text-left sm:text-right shrink-0 items-center sm:items-end">
                       <div className="stat-column">
                         <span className="stat-value">{influencer.matchScore}</span>
                         <span className="stat-label">คะแนน</span>
@@ -147,8 +146,14 @@ function App() {
                       )}
                     </div>
                   </div>
-                  <div className="influencer-reason">
-                    <p><strong>ทำไมถึงเหมาะ:</strong> {influencer.reason}</p>
+                  <div className="bg-[#0f172a66] border-l-[3px] border-[#fe2c55] px-4 py-3 rounded-r-lg mt-2 w-full min-w-0">
+                    {influencer.reason ? (
+                      <p className="break-words whitespace-pre-wrap text-[0.9rem] text-white/85 leading-relaxed">
+                        <strong className="text-[#fe2c55] font-semibold">ทำไมถึงเหมาะ:</strong> {influencer.reason}
+                      </p>
+                    ) : (
+                      <p className="italic text-[0.9rem] text-white/50">ไม่มีข้อมูลเหตุผล</p>
+                    )}
                   </div>
                 </div>
               ))}

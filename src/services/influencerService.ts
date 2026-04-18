@@ -77,7 +77,7 @@ export const getInfluencerMatches = async (data: InfluencerMatchRequest): Promis
       return null;
     };
 
-    let rawData = extractData(resData) || [];
+    let rawData = extractData(resData.data) || [];
     if (!Array.isArray(rawData)) rawData = [rawData].filter(Boolean);
 
     console.log("Extracted Array for mapping:", rawData);
@@ -85,7 +85,12 @@ export const getInfluencerMatches = async (data: InfluencerMatchRequest): Promis
     // Map fields from received payload
     let rankings: InfluencerRanking[] = rawData.map((item, index) => {
       // Fix string values that might act as empty indicators
-      const avatar = item.Avater && item.Avater !== "N/A" && typeof item.Avater === 'string' && item.Avater.startsWith('http') ? item.Avater : '';
+      const avatar = (item.Avater || item.Avatar) &&
+        (item.Avater || item.Avatar) !== "N/A" &&
+        typeof (item.Avater || item.Avatar) === 'string' &&
+        (item.Avater || item.Avatar).startsWith('http')
+        ? (item.Avater || item.Avatar)
+        : '';
       const profile = item.Tiktok_Profile && item.Tiktok_Profile !== "N/A" && typeof item.Tiktok_Profile === 'string' && item.Tiktok_Profile.startsWith('http') ? item.Tiktok_Profile : '';
 
       return {

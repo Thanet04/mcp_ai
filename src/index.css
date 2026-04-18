@@ -1,3 +1,5 @@
+@import "tailwindcss";
+
 /* Cleared to avoid conflicts with App.css */
 body {
   margin: 0;
